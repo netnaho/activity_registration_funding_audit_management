@@ -166,6 +166,10 @@ It prints group-level pass/fail and exits non-zero on failure.
 - username/password authentication only
 - password hashing with Argon2 (`pwdlib[argon2]`)
 - JWT-based auth for SPA/API
+- JWT secret hardening:
+  - weak/default secret values are rejected
+  - if `JWT_SECRET_KEY` is not supplied, backend auto-generates a strong secret and persists it at `/app/backups/security/jwt_secret.key`
+  - generated secret file permissions are restricted (`0600`)
 - lockout policy: 10 failed attempts in 5 minutes -> 30-minute lock
 - role-based authorization and route controls
 - sensitive field masking foundation for non-authorized roles
@@ -187,6 +191,11 @@ It prints group-level pass/fail and exits non-zero on failure.
 - Recover backup endpoint: `POST /api/backups/{id}/recover`
 
 Backup includes DB SQL dump + uploaded files archive. Recovery restores both from local artifact.
+
+Recovery hardening:
+
+- tar archive members are validated before extraction
+- absolute paths, traversal paths, and symlink members are rejected to prevent path traversal overwrite attacks
 
 ## Export Feature Verification Notes
 

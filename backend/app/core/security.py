@@ -5,6 +5,7 @@ from jose import jwt
 from pwdlib import PasswordHash
 
 from app.core.config import settings
+from app.core.secrets import get_jwt_secret_key
 
 
 password_hash = PasswordHash.recommended()
@@ -28,4 +29,4 @@ def create_access_token(subject: str, role: str) -> str:
         "iat": datetime.now(timezone.utc),
         "type": "access",
     }
-    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+    return jwt.encode(payload, get_jwt_secret_key(), algorithm=settings.jwt_algorithm)

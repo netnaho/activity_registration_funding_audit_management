@@ -98,7 +98,9 @@ def recover_backup(db: Session, backup_id: int) -> str:
     tmp_restore.mkdir(parents=True, exist_ok=True)
 
     with tarfile.open(archive, "r:gz") as tar:
-        tar.extractall(path=tmp_restore)
+        members = tar.getmembers()
+        _validate_tar_members(members, tmp_restore)
+        tar.extractall(path=tmp_restore, members=members)
 
     db_dump = tmp_restore / "database.sql"
     restored_uploads = tmp_restore / "uploads"
@@ -135,3 +137,18 @@ def recover_backup(db: Session, backup_id: int) -> str:
     shutil.rmtree(tmp_restore, ignore_errors=True)
 
     return "Recovery completed"
+
+
+def _validate_tar_members(members: list[tarfile.TarInfo], destination: Path) -> None:
+    destination_abs = destination.resolve()
+    for member in members:
+        member_name = member.name
+        if member_name.startswith("/"):
+            raise APIError(400, "Unsafe backup archive: absolute path entry detected")
+
+        target_path = (destination / member_name).resolve()
+        if not str(target_path).startswith(str(destination_abs)):
+            raise APIError(400, "Unsafe backup archive: path traversal detected")
+
+        if member.issym() or member.islnk():
+            raise APIError(400, "Unsafe backup archive: symlink entries are not allowed")
