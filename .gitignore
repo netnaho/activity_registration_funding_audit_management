@@ -1,0 +1,34 @@
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Node.js / Vue.js
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm/
+package-lock.json
+yarn.lock
+
+# Environment Variables
+.env
+.env.*
+
+# Docker
+docker-compose.override.yml
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
