@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <el-card class="page-surface surface-hover" style="margin-bottom: 14px">
+    <el-card class="page-surface surface-hover admin-hero" style="margin-bottom: 14px">
       <h2 style="margin: 0">Admin Control Center</h2>
       <p class="muted" style="margin-top: 6px">Backup, recovery, policy management, alerts, and exports.</p>
     </el-card>
@@ -13,7 +13,7 @@
             <el-button type="primary" :loading="backupCreating" @click="createBackup">Create Backup</el-button>
             <el-button :loading="backupLoading" @click="loadBackups">Refresh</el-button>
           </div>
-          <el-table :data="backups" style="width: 100%; margin-top: 12px" border>
+          <el-table :data="backups" style="width: 100%; margin-top: 12px" border empty-text="No backups created yet">
             <el-table-column prop="id" label="ID" width="70" />
             <el-table-column prop="backup_type" label="Type" width="90" />
             <el-table-column prop="status" label="Status" width="110" />
@@ -45,7 +45,7 @@
       <template #header>Alerts and Metrics</template>
       <el-button type="primary" :loading="recomputeLoading" @click="recomputeMetrics">Recompute Metrics</el-button>
       <el-button style="margin-left: 8px" :loading="loadingAlerts" @click="loadAlerts">Refresh Alerts</el-button>
-      <el-table :data="alerts" style="width: 100%; margin-top: 12px" border>
+      <el-table :data="alerts" style="width: 100%; margin-top: 12px" border empty-text="No active alerts">
         <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="alert_type" label="Type" width="180" />
         <el-table-column prop="severity" label="Severity" width="120" />
@@ -215,6 +215,9 @@ onMounted(async () => {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 10px;
+}
+.admin-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f6f8ff 52%, #eef7ff 100%);
 }
 @media (max-width: 768px) {
   :deep(.el-row .el-col) {

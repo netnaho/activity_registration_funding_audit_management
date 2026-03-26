@@ -11,6 +11,7 @@
 
       <nav class="nav">
         <button v-for="item in navItems" :key="item.path" class="nav-item" :class="{ active: route.path === item.path }" @click="go(item.path)">
+          <span class="dot" />
           <span>{{ item.label }}</span>
         </button>
       </nav>
@@ -28,7 +29,7 @@
         </div>
         <div class="topbar-actions">
           <el-tag>{{ roleLabel }}</el-tag>
-          <el-tag type="success">Online</el-tag>
+          <span class="status-pill success">Online</span>
           <el-button @click="logout">Logout</el-button>
         </div>
       </header>
@@ -87,7 +88,7 @@ const logout = () => {
   min-height: 100vh;
 }
 .sidebar {
-  background: linear-gradient(180deg, #0d1b3d 0%, #172a5f 100%);
+  background: linear-gradient(180deg, #0c1a3f 0%, #13285a 48%, #1b3574 100%);
   color: #dce4ff;
   padding: 16px;
   display: flex;
@@ -134,10 +135,23 @@ const logout = () => {
   padding: 10px 12px;
   cursor: pointer;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
 }
 .nav-item.active,
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.16);
+}
+.nav-item.active .dot,
+.nav-item:hover .dot {
+  background: #84aef6;
 }
 .sidebar-footer {
   margin-top: auto;
@@ -151,7 +165,7 @@ const logout = () => {
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid #dfe5f2;
-  background: #ffffffd9;
+  background: linear-gradient(180deg, #ffffffec, #fbfdffef);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: space-between;

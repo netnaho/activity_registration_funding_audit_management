@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <el-card class="page-surface surface-hover">
+    <el-card class="page-surface surface-hover audit-hero">
       <template #header>
         <div class="header-row">
           <div>
@@ -60,6 +60,9 @@ onMounted(loadLogs);
 .header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .search-input {
   width: 260px;
+}
+.audit-hero {
+  background: linear-gradient(180deg, #ffffff 0%, #f7faff 100%);
 }
 @media (max-width: 760px) {
   .header-row {

@@ -17,7 +17,7 @@
         <el-step title="Submit" />
       </el-steps>
 
-      <div v-if="activeStep === 0" class="step-panel">
+      <div v-if="activeStep === 0" class="step-panel form-section">
         <el-form label-width="160px" label-position="top" :model="registrationForm">
           <el-form-item label="Title"><el-input v-model="registrationForm.title" /></el-form-item>
           <el-form-item label="Description"><el-input v-model="registrationForm.description" type="textarea" :rows="4" /></el-form-item>
@@ -30,7 +30,7 @@
       </div>
 
       <div v-if="activeStep === 1" class="step-panel">
-        <el-alert type="info" :closable="false" :title="`Total upload: ${Math.round(totalUploadSize / 1024 / 1024)} MB / 200 MB`" />
+        <el-alert type="info" :closable="false" :title="`Total upload: ${Math.round(totalUploadSize / 1024 / 1024)} MB / 200 MB`" class="premium-alert" />
         <el-table :data="checklistItems" style="width: 100%; margin-top: 16px" border>
           <el-table-column prop="item_code" label="Code" width="140" />
           <el-table-column prop="item_name" label="Material Item" />
@@ -65,10 +65,12 @@
       </div>
 
       <div v-if="activeStep === 2" class="step-panel">
-        <el-select v-model="selectedRegistrationId" placeholder="Select registration" style="width: 260px">
+        <div class="toolbar-row">
+        <el-select v-model="selectedRegistrationId" placeholder="Select registration" class="registration-select">
           <el-option v-for="r in registrations" :key="r.id" :label="`${r.id} - ${r.title} (${r.status})`" :value="r.id" />
         </el-select>
         <el-button type="success" :loading="submittingRegistration" @click="submitRegistration">Submit Registration</el-button>
+        </div>
 
         <el-divider />
         <el-input v-model="supplementaryReason" placeholder="Supplementary reason" type="textarea" :rows="3" />
@@ -224,6 +226,9 @@ onMounted(async () => { await Promise.all([loadChecklist(), loadRegistrations()]
 .actions { margin-top: 16px; display: flex; gap: 10px; }
 .version-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
 .registration-list { margin-top: 18px; }
+.form-section :deep(.el-form-item__label) {
+  font-weight: 600;
+}
 .wizard-steps {
   margin-top: 6px;
   padding: 8px 4px;
@@ -231,10 +236,19 @@ onMounted(async () => { await Promise.all([loadChecklist(), loadRegistrations()]
   border: 1px solid #dfe5f2;
   border-radius: 12px;
 }
+.premium-alert {
+  border-radius: 12px;
+}
+.registration-select {
+  width: 320px;
+}
 @media (max-width: 760px) {
   .header-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+  .registration-select {
+    width: 100%;
   }
 }
 </style>

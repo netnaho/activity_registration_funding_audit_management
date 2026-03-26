@@ -114,6 +114,9 @@ const onSubmit = async () => {
 .login-form {
   margin-top: 10px;
 }
+:deep(.el-form-item__label) {
+  font-weight: 600;
+}
 .cta {
   width: 100%;
   font-weight: 700;

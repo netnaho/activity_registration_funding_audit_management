@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <el-card class="page-surface surface-hover" style="margin-bottom: 14px">
+    <el-card class="page-surface surface-hover finance-hero" style="margin-bottom: 14px">
       <h2 style="margin: 0">Finance Management</h2>
       <p class="muted" style="margin-top: 6px">Manage budgets, transactions, invoice records, and overspending controls.</p>
     </el-card>
@@ -47,7 +47,7 @@
     <el-card class="page-surface surface-hover" style="margin-top: 16px">
       <template #header>Finance Overview</template>
       <el-button :loading="loadingOverview" @click="loadOverview">Refresh</el-button>
-      <el-table :data="accounts" style="width: 100%; margin-top: 12px" border>
+      <el-table :data="accounts" style="width: 100%; margin-top: 12px" border empty-text="No funding accounts yet">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="account_name" label="Account" />
         <el-table-column prop="category" label="Category" />
@@ -188,6 +188,9 @@ onMounted(loadOverview);
 
 <style scoped>
 .stats-block { margin-top: 12px; background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
+.finance-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 58%, #edf9f2 100%);
+}
  :deep(.el-input-number) {
   width: 100%;
  }

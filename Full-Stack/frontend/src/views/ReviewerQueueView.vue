@@ -181,6 +181,11 @@ onMounted(loadQueue);
 .batch-panel.stacked > * {
   width: 100%;
 }
+:deep(.el-table .cell) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 @media (max-width: 900px) {
   .header-row {
     flex-direction: column;
