@@ -9,6 +9,7 @@ env/
 .coverage
 htmlcov/
 *.log
+.tmp
 
 # Node.js / Vue.js
 node_modules/
