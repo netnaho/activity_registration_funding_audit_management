@@ -69,7 +69,8 @@
         <el-select v-model="selectedRegistrationId" placeholder="Select registration" class="registration-select">
           <el-option v-for="r in registrations" :key="r.id" :label="`${r.id} - ${r.title} (${r.status})`" :value="r.id" />
         </el-select>
-        <el-button type="success" :loading="submittingRegistration" @click="submitRegistration">Submit Registration</el-button>
+        <el-button type="success" :loading="submittingRegistration" :disabled="!canSubmitSelectedRegistration" @click="submitRegistration">Submit Registration</el-button>
+        <span v-if="selectedRegistration" class="muted submit-hint">Current status: {{ selectedRegistration.status }}</span>
         </div>
 
         <el-divider />
@@ -123,6 +124,11 @@ const supplementaryReason = ref("");
 const pickedFiles = ref<Record<number, File | null>>({});
 
 const totalUploadSize = computed(() => materialRows.value.reduce((acc: number, item: any) => acc + item.versions.reduce((sum: number, v: any) => sum + Number(v.file_size_bytes || 0), 0), 0));
+const selectedRegistration = computed(() => registrations.value.find((r) => r.id === selectedRegistrationId.value) || null);
+const canSubmitSelectedRegistration = computed(() => {
+  if (!selectedRegistration.value) return false;
+  return ["draft", "supplemented"].includes(selectedRegistration.value.status);
+});
 
 const loadRegistrations = async () => {
   loadingRegistrations.value = true;
@@ -197,6 +203,10 @@ const loadMaterials = async () => {
 
 const submitRegistration = async () => {
   if (!selectedRegistrationId.value) { notifyWarning("Select a registration to submit"); return; }
+  if (!canSubmitSelectedRegistration.value) {
+    notifyWarning("Only registrations in draft or supplemented status can be submitted");
+    return;
+  }
   submittingRegistration.value = true;
   try {
     await registrationApi.submit(selectedRegistrationId.value);
@@ -241,6 +251,9 @@ onMounted(async () => { await Promise.all([loadChecklist(), loadRegistrations()]
 }
 .registration-select {
   width: 320px;
+}
+.submit-hint {
+  font-size: 0.85rem;
 }
 @media (max-width: 760px) {
   .header-row {

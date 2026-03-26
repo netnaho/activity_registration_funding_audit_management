@@ -101,6 +101,36 @@ def _submitted_item_ids(db: Session, registration_id: int) -> set[int]:
     return {row[0] for row in rows}
 
 
+def _required_items_ready_for_submission(db: Session, registration_id: int) -> bool:
+    required_items = db.scalars(select(MaterialChecklistItem).where(MaterialChecklistItem.required.is_(True))).all()
+    if not required_items:
+        return True
+
+    for item in required_items:
+        submission = db.scalar(
+            select(RegistrationMaterialSubmission).where(
+                RegistrationMaterialSubmission.registration_form_id == registration_id,
+                RegistrationMaterialSubmission.checklist_item_id == item.id,
+            )
+        )
+        if not submission:
+            return False
+
+        latest_version = db.scalar(
+            select(MaterialVersion)
+            .where(MaterialVersion.submission_id == submission.id)
+            .order_by(MaterialVersion.version_number.desc())
+            .limit(1)
+        )
+        if not latest_version:
+            return False
+
+        if latest_version.status not in {MaterialStatus.PENDING_SUBMISSION, MaterialStatus.SUBMITTED}:
+            return False
+
+    return True
+
+
 def submit_registration(db: Session, registration_id: int, applicant: User) -> RegistrationForm:
     registration = db.scalar(select(RegistrationForm).where(RegistrationForm.id == registration_id))
     if not registration:
@@ -110,10 +140,10 @@ def submit_registration(db: Session, registration_id: int, applicant: User) -> R
     if registration.is_locked:
         raise APIError(400, "Registration is locked")
 
-    required = _required_item_ids(db)
-    submitted = _submitted_item_ids(db, registration_id)
-    missing = required - submitted
-    if missing:
+    if registration.status not in {RegistrationStatus.DRAFT, RegistrationStatus.SUPPLEMENTED}:
+        raise APIError(400, f"Registration cannot be submitted from status '{registration.status.value}'")
+
+    if not _required_items_ready_for_submission(db, registration_id):
         raise APIError(400, "Checklist mandatory materials are incomplete")
 
     registration.status = RegistrationStatus.SUBMITTED
@@ -154,6 +184,8 @@ def create_supplementary_window(db: Session, registration: RegistrationForm, req
         .limit(1)
     )
     trigger_time = latest_trigger.created_at if latest_trigger else registration.updated_at
+    if trigger_time.tzinfo is None:
+        trigger_time = trigger_time.replace(tzinfo=timezone.utc)
     if datetime.now(timezone.utc) > trigger_time + timedelta(hours=72):
         raise APIError(400, "Supplementary submission window exceeded 72 hours")
 

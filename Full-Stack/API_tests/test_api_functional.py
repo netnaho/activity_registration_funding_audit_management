@@ -169,8 +169,20 @@ def run():
     status, upload3 = upload(registration_id, checklist_items[2]["id"], "item3.pdf", b"%PDF-1.4\nthird\n")
     assert_true(status == 200, "third valid upload failed")
 
+    # max 3 versions per material: 4th upload to same checklist item must fail
+    status, _v2 = upload(registration_id, checklist_items[0]["id"], "item1_v2.pdf", b"%PDF-1.4\nver2\n")
+    assert_true(status == 200, "second version upload failed")
+    status, _v3 = upload(registration_id, checklist_items[0]["id"], "item1_v3.pdf", b"%PDF-1.4\nver3\n")
+    assert_true(status == 200, "third version upload failed")
+    status, _v4 = upload(registration_id, checklist_items[0]["id"], "item1_v4.pdf", b"%PDF-1.4\nver4\n")
+    assert_true(status == 400, "fourth version upload should fail due to max 3 versions")
+
     status, reg_submit = request_json("POST", "/api/registrations/submit", payload={"registration_id": registration_id}, token=applicant_token)
     assert_true(status == 200, "registration submit failed")
+
+    status, submit_again = request_json("POST", "/api/registrations/submit", payload={"registration_id": registration_id}, token=applicant_token)
+    assert_true(status == 400, "re-submitting already submitted registration should fail")
+    assert_true("cannot be submitted" in submit_again.get("msg", ""), "re-submit failure reason mismatch")
 
     status, materials_after_submit = request_json("GET", f"/api/materials/{registration_id}", token=applicant_token)
     assert_true(status == 200, "materials read after submit failed")
@@ -258,6 +270,12 @@ def run():
 
     status, _stats = request_json("GET", "/api/finance/stats", token=finance_token)
     assert_true(status == 200, "finance stats failed")
+    stats_data = _stats.get("data", {})
+    assert_true("total_transactions" in stats_data, "finance stats missing total_transactions")
+    assert_true("by_category" in stats_data and isinstance(stats_data["by_category"], dict), "finance stats missing by_category")
+    assert_true("by_day" in stats_data and isinstance(stats_data["by_day"], dict), "finance stats missing by_day")
+    assert_true(stats_data.get("total_transactions", 0) >= 1, "finance stats should include at least one transaction")
+    assert_true("ops" in stats_data.get("by_category", {}), "finance stats should aggregate ops category")
 
     for path in ["/api/reports/reconciliation", "/api/reports/audit", "/api/reports/compliance", "/api/reports/whitelist"]:
         status, _report = request_json("POST", path, token=admin_token)
